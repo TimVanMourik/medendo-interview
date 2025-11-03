@@ -1,6 +1,5 @@
 import css from "@eslint/css";
 import js from "@eslint/js";
-import json from "@eslint/json";
 import markdown from "@eslint/markdown";
 import { defineConfig } from "eslint/config";
 import globals from "globals";
@@ -12,13 +11,12 @@ export default defineConfig([
     plugins: { js },
     extends: ["js/recommended"],
     languageOptions: { globals: globals.browser },
+    ignores: ["webpack.config.js"],
   },
-  tseslint.configs.recommended,
   {
-    files: ["**/*.json"],
-    plugins: { json },
-    language: "json/json",
-    extends: ["json/recommended"],
+    files: ["**/*.ts", "**/*.mts", "**/*.cts", "**/*.tsx"],
+    extends: [tseslint.configs.recommended],
+    ignores: ["webpack.config.js"],
   },
   {
     files: ["**/*.md"],
