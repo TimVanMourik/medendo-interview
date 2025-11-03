@@ -34,7 +34,7 @@ interface SpeechRecognition extends EventTarget {
   interimResults: boolean;
   lang: string;
   onresult: (event: SpeechRecognitionEvent) => void;
-  onerror: (event: any) => void;
+  onerror: (event: unknown) => void;
   start(): void;
   stop(): void;
 }
@@ -46,6 +46,15 @@ declare global {
     webkitSpeechRecognition: new () => SpeechRecognition;
   }
 }
+
+const AVAILABLE_LANGUAGES = [
+  { code: "en-US", label: "English" },
+  { code: "es-ES", label: "Spanish" },
+  { code: "fr-FR", label: "French" },
+  { code: "de-DE", label: "German" },
+  { code: "it-IT", label: "Italian" },
+  { code: "nl-NL", label: "Dutch" },
+];
 
 const App: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -59,19 +68,11 @@ const App: React.FC = () => {
   const [wordCount, setWordCount] = useState(0);
   const [sentenceCount, setSentenceCount] = useState(0);
   const [currentLanguage, setCurrentLanguage] = useState("en-US");
-  const [languageLabel, setLanguageLabel] = useState("English");
-  const [availableLanguages, setAvailableLanguages] = useState([
-    { code: "en-US", label: "English" },
-    { code: "es-ES", label: "Spanish" },
-    { code: "fr-FR", label: "French" },
-    { code: "de-DE", label: "German" },
-    { code: "it-IT", label: "Italian" },
-    { code: "nl-NL", label: "Dutch" },
-  ]);
+  const [, setLanguageLabel] = useState("English");
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const interimTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const summarizerRef = useRef<any>(null);
+  const summarizerRef = useRef<unknown>(null);
 
   useEffect(() => {
     // This logs stuff
@@ -238,7 +239,7 @@ const App: React.FC = () => {
 
     // Variable to store the summary result
     let summaryResult = "";
-    let errorOccurred = false;
+    // let errorOccurred = false;
 
     try {
       // Get the model from ref
@@ -263,7 +264,7 @@ const App: React.FC = () => {
       ) {
         summaryResult = summaryResponse[0].summary_text;
       } else {
-        errorOccurred = true;
+        // errorOccurred = true;
         summaryResult = "Failed to generate summary. Please try again.";
       }
     } catch (error) {
@@ -272,7 +273,7 @@ const App: React.FC = () => {
       console.error(error);
 
       // Set error flag
-      errorOccurred = true;
+      // errorOccurred = true;
 
       // Set error message
       summaryResult = "Failed to generate summary. Please try again.";
@@ -288,7 +289,7 @@ const App: React.FC = () => {
   const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     // Get the selected language code from the dropdown
     const selectedLanguageCode = event.target.value;
-    const selectedLanguage = availableLanguages.find((lang) => lang.code === selectedLanguageCode);
+    const selectedLanguage = AVAILABLE_LANGUAGES.find((lang) => lang.code === selectedLanguageCode);
 
     if (selectedLanguage) {
       setCurrentLanguage(selectedLanguage.code);
@@ -328,7 +329,7 @@ const App: React.FC = () => {
               onChange={handleLanguageChange}
               className="language-dropdown"
             >
-              {availableLanguages.map((language) => (
+              {AVAILABLE_LANGUAGES.map((language) => (
                 <option key={language.code} value={language.code}>
                   {language.label}
                 </option>
