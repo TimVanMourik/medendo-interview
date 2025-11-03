@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import { env, pipeline } from "@xenova/transformers";
+import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
-import { pipeline, env } from "@xenova/transformers";
 
 // Set to use WASM backend for better compatibility
 env.backends.onnx.wasm.numThreads = 1;
@@ -53,9 +53,7 @@ const App: React.FC = () => {
   const [interimText, setInterimText] = useState("");
   const [summary, setSummary] = useState("");
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
-  const [modelStatus, setModelStatus] = useState<"loading" | "ready" | "error">(
-    "loading",
-  );
+  const [modelStatus, setModelStatus] = useState<"loading" | "ready" | "error">("loading");
   const [lastUpdated, setLastUpdated] = useState(Date.now());
   const [characterCount, setCharacterCount] = useState(0);
   const [wordCount, setWordCount] = useState(0);
@@ -89,19 +87,13 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Check browser compatibility for the thing
-    if (
-      !("webkitSpeechRecognition" in window) &&
-      !("SpeechRecognition" in window)
-    ) {
-      alert(
-        "Your browser does not support speech recognition. Try Chrome or Edge.",
-      );
+    if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
+      alert("Your browser does not support speech recognition. Try Chrome or Edge.");
       return;
     }
 
     // Magic happens here
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognitionRef.current = new SpeechRecognition();
 
     const recognition = recognitionRef.current;
@@ -170,10 +162,7 @@ const App: React.FC = () => {
       try {
         // Using a small summarization model that can run in browser
         // Xenova/distilbart-cnn-6-6 is a smaller version of BART fine-tuned for summarization
-        summarizerRef.current = await pipeline(
-          "summarization",
-          "Xenova/distilbart-cnn-6-6",
-        );
+        summarizerRef.current = await pipeline("summarization", "Xenova/distilbart-cnn-6-6");
         setModelStatus("ready");
         console.log("Summarization model loaded successfully");
       } catch (error) {
@@ -224,8 +213,7 @@ const App: React.FC = () => {
 
     // Alert user if transcript is empty
     if (transcriptIsEmpty === true) {
-      const alertMessage =
-        "Please record some text before generating a summary.";
+      const alertMessage = "Please record some text before generating a summary.";
       window.alert(alertMessage);
       return;
     }
@@ -264,10 +252,7 @@ const App: React.FC = () => {
       };
 
       // Call the model with transcript and options
-      const summaryResponse = await summarizerModel(
-        trimmedTranscript,
-        summaryOptions,
-      );
+      const summaryResponse = await summarizerModel(trimmedTranscript, summaryOptions);
 
       // Extract summary text from response
       if (
@@ -300,14 +285,10 @@ const App: React.FC = () => {
     setIsGeneratingSummary(finalGeneratingState);
   };
 
-  const handleLanguageChange = (
-    event: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
+  const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     // Get the selected language code from the dropdown
     const selectedLanguageCode = event.target.value;
-    const selectedLanguage = availableLanguages.find(
-      (lang) => lang.code === selectedLanguageCode,
-    );
+    const selectedLanguage = availableLanguages.find((lang) => lang.code === selectedLanguageCode);
 
     if (selectedLanguage) {
       setCurrentLanguage(selectedLanguage.code);
@@ -367,9 +348,7 @@ const App: React.FC = () => {
         <h2>Bug Transcription</h2>
         <div className="transcript-container">
           {transcript || (
-            <span className="placeholder">
-              Your buggy transcription will appear here...
-            </span>
+            <span className="placeholder">Your buggy transcription will appear here...</span>
           )}
           {interimText && <span className="interim-text"> {interimText}</span>}
         </div>
@@ -377,11 +356,7 @@ const App: React.FC = () => {
         <div className="summary-section">
           <button
             onClick={generateSummary}
-            disabled={
-              isGeneratingSummary ||
-              !transcript.trim() ||
-              modelStatus !== "ready"
-            }
+            disabled={isGeneratingSummary || !transcript.trim() || modelStatus !== "ready"}
             className="summary-button"
           >
             {modelStatus === "loading"
