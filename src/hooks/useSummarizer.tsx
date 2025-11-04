@@ -60,10 +60,10 @@ export const useSummarizer = (): UseSummarizerReturn => {
 
     setIsGeneratingSummary(true);
 
-    // Variable to store the summary result
-    let summaryResult = "";
-
     try {
+      // Slight hack for the loading state. Yield to the event loop to allow React to re-render
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
       // Get the model from ref
       const summarizerModel = summarizerRef.current;
       if (!summarizerModel) {
@@ -78,20 +78,20 @@ export const useSummarizer = (): UseSummarizerReturn => {
       };
 
       const summaryResponse = await summarizerModel(trimmedTranscript, summaryOptions);
-      summaryResult =
+      const summaryResult =
         (summaryResponse?.[0] as SummarizationSingle)?.summary_text ?? SUMMARY_RESULT_ERROR;
+
+      // Update summary state with result
+      setSummary(summaryResult);
     } catch (error) {
       // Log error
       console.error("Error generating summary:", error);
 
       // Set error message
-      summaryResult = SUMMARY_RESULT_ERROR;
+      setSummary(SUMMARY_RESULT_ERROR);
+    } finally {
+      setIsGeneratingSummary(false);
     }
-
-    // Update summary state with result
-    setSummary(summaryResult);
-
-    setIsGeneratingSummary(false);
   };
 
   const clearSummary = () => {

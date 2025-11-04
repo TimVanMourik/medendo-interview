@@ -28,7 +28,7 @@ export const TranscriptionSummary: React.FC<TranscriptionSummaryProps> = ({ tran
             ? "Model Failed to Load"
             : isGeneratingSummary
               ? "Generating..."
-              : "Generate Bug Report"}
+              : "Generate Transcription Report"}
       </button>
 
       {summary && (
