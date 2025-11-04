@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { ModelStatus, TranscriptionSummary } from "../TranscriptionSummary";
+import { ModelStatus, TranscriptionSummary } from "../components/TranscriptionSummary";
 
 // Mock the @xenova/transformers module
 jest.mock("@xenova/transformers", () => ({

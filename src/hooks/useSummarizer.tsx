@@ -1,9 +1,5 @@
 import { pipeline, SummarizationPipeline, SummarizationSingle } from "@xenova/transformers";
-import React, { useEffect, useRef, useState } from "react";
-
-export interface TranscriptionSummaryProps {
-  transcript: string;
-}
+import { useEffect, useRef, useState } from "react";
 
 export enum ModelStatus {
   Loading = "loading",
@@ -13,7 +9,15 @@ export enum ModelStatus {
 
 const SUMMARY_RESULT_ERROR = "Failed to generate summary. Please try again.";
 
-export const TranscriptionSummary: React.FC<TranscriptionSummaryProps> = ({ transcript }) => {
+interface UseSummarizerReturn {
+  summary: string;
+  isGeneratingSummary: boolean;
+  modelStatus: ModelStatus;
+  generateSummary: (transcript: string) => Promise<void>;
+  clearSummary: () => void;
+}
+
+export const useSummarizer = (): UseSummarizerReturn => {
   const [summary, setSummary] = useState("");
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [modelStatus, setModelStatus] = useState<ModelStatus>(ModelStatus.Loading);
@@ -38,7 +42,7 @@ export const TranscriptionSummary: React.FC<TranscriptionSummaryProps> = ({ tran
     loadModel();
   }, []);
 
-  const generateSummary = async () => {
+  const generateSummary = async (transcript: string) => {
     const trimmedTranscript = transcript.trim();
     if (trimmedTranscript.length === 0) {
       const alertMessage = "Please record some text before generating a summary.";
@@ -58,7 +62,6 @@ export const TranscriptionSummary: React.FC<TranscriptionSummaryProps> = ({ tran
 
     // Variable to store the summary result
     let summaryResult = "";
-    // let errorOccurred = false;
 
     try {
       // Get the model from ref
@@ -91,28 +94,15 @@ export const TranscriptionSummary: React.FC<TranscriptionSummaryProps> = ({ tran
     setIsGeneratingSummary(false);
   };
 
-  return (
-    <div className="summary-section">
-      <button
-        onClick={generateSummary}
-        disabled={isGeneratingSummary || !transcript.trim() || modelStatus !== ModelStatus.Ready}
-        className="summary-button"
-      >
-        {modelStatus === ModelStatus.Loading
-          ? "Loading Model..."
-          : modelStatus === ModelStatus.Error
-            ? "Model Failed to Load"
-            : isGeneratingSummary
-              ? "Generating..."
-              : "Generate Bug Report"}
-      </button>
+  const clearSummary = () => {
+    setSummary("");
+  };
 
-      {summary && (
-        <div className="summary-container">
-          <h3>Bug Report Summary</h3>
-          <p>{summary}</p>
-        </div>
-      )}
-    </div>
-  );
+  return {
+    summary,
+    isGeneratingSummary,
+    modelStatus,
+    generateSummary,
+    clearSummary,
+  };
 };
