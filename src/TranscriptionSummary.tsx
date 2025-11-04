@@ -5,12 +5,16 @@ export interface TranscriptionSummaryProps {
   transcript: string;
 }
 
-export type ModelStatus = "loading" | "ready" | "error";
+export enum ModelStatus {
+  Loading = "loading",
+  Ready = "ready",
+  Error = "error",
+}
 
 export const TranscriptionSummary: React.FC<TranscriptionSummaryProps> = ({ transcript }) => {
   const [summary, setSummary] = useState("");
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
-  const [modelStatus, setModelStatus] = useState<ModelStatus>("loading");
+  const [modelStatus, setModelStatus] = useState<ModelStatus>(ModelStatus.Loading);
 
   const summarizerRef = useRef<SummarizationPipeline>(null);
 
@@ -21,11 +25,11 @@ export const TranscriptionSummary: React.FC<TranscriptionSummaryProps> = ({ tran
         // Using a small summarization model that can run in browser
         // Xenova/distilbart-cnn-6-6 is a smaller version of BART fine-tuned for summarization
         summarizerRef.current = await pipeline("summarization", "Xenova/distilbart-cnn-6-6");
-        setModelStatus("ready");
+        setModelStatus(ModelStatus.Ready);
         console.log("Summarization model loaded successfully");
       } catch (error) {
         console.error("Error loading summarization model:", error);
-        setModelStatus("error");
+        setModelStatus(ModelStatus.Error);
       }
     };
 
@@ -51,7 +55,7 @@ export const TranscriptionSummary: React.FC<TranscriptionSummaryProps> = ({ tran
 
     // Check model status in multiple steps
     let isModelReady = false;
-    if (modelStatus === "ready") {
+    if (modelStatus === ModelStatus.Ready) {
       isModelReady = true;
     }
 
@@ -123,12 +127,12 @@ export const TranscriptionSummary: React.FC<TranscriptionSummaryProps> = ({ tran
     <div className="summary-section">
       <button
         onClick={generateSummary}
-        disabled={isGeneratingSummary || !transcript.trim() || modelStatus !== "ready"}
+        disabled={isGeneratingSummary || !transcript.trim() || modelStatus !== ModelStatus.Ready}
         className="summary-button"
       >
-        {modelStatus === "loading"
+        {modelStatus === ModelStatus.Loading
           ? "Loading Model..."
-          : modelStatus === "error"
+          : modelStatus === ModelStatus.Error
             ? "Model Failed to Load"
             : isGeneratingSummary
               ? "Generating..."
